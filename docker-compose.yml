@@ -1,0 +1,58 @@
+version: "3.1"
+services:
+  mysql:
+    restart: on-failure:3
+    image: mysql:5.7
+    expose:
+      - "3306"
+    ports:
+      - "3320:3306"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    env_file:
+      - variables.env
+
+  mongoclient:
+    restart: on-failure:3
+    image: mongoclient/mongoclient
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    env_file:
+      - variables.env
+
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin/phpmyadmin:4.7
+    depends_on:
+      - mysql
+    expose:
+      - "80"
+    ports:
+      - "8082:80"
+    env_file:
+      - variables.env
+
+  app:
+    build:
+      context: ./docker/app
+      dockerfile: Dockerfile
+      args:
+        cphalcon_version: "3.0.4"
+    restart: always
+    ports:
+      - "82:80"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    depends_on:
+      - mysql
+      - mongoclient
+    env_file:
+      - variables.env
+    secrets:
+      - jenkey
+
+volumes:
+  mysql:
+    driver: local

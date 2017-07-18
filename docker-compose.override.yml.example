@@ -1,0 +1,10 @@
+version: "3.1"
+secrets:
+  jenkey:
+    file: ~/.ssh/reliance_vms
+  jenkey2:
+    file: ~/.ssh/smpp1
+services:
+  app:
+    volumes:
+      - /home/user/project:/var/www:rw
